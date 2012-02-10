@@ -1,0 +1,29 @@
+
+package speedboost;
+
+message FeatureMessage {
+  enum Type {
+    HAAR = 0;
+  }
+
+  required Type type = 1 [default = HAAR];
+  
+  optional HaarFeatureMessage haar_data = 100;
+}
+
+message BoxMessage {
+  optional int32 x0 = 1;
+  optional int32 y0 = 2;
+  optional int32 x1 = 3;
+  optional int32 y1 = 4;
+}
+
+message HaarFeatureMessage {
+  optional int32 channel = 1 [default = 0];
+
+  optional BoxMessage b0 = 2;
+  optional float w0 = 3;
+
+  optional BoxMessage b1 = 4;
+  optional float w1 = 5;
+}

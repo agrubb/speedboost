@@ -1,0 +1,8 @@
+# generated protobuf files
+*.pb.cc
+*.pb.h
+
+# directories
+bin/
+lib/
+obj/

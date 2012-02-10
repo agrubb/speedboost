@@ -1,0 +1,741 @@
+type: ANYTIME
+chains {
+  filter {
+    threshold: 3.4028235e+38
+    active: false
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 1
+              y0: 5
+              x1: 17
+              y1: 9
+            }
+            w0: 1
+            b1 {
+              x0: 4
+              y0: 1
+              x1: 18
+              y1: 5
+            }
+            w1: -1
+          }
+        }
+        split: 9.2921591
+        output: 1
+      }
+      weight: 0.86241525
+      bias: 0
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 3.4028235e+38
+    active: false
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 15
+              y0: 7
+              x1: 17
+              y1: 11
+            }
+            w0: 1
+            b1 {
+              x0: 6
+              y0: 12
+              x1: 9
+              y1: 15
+            }
+            w1: -1
+          }
+        }
+        split: 0.49804878
+        output: 1
+      }
+      weight: 0.53928131
+      bias: 0
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 0.86241525
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 13
+              y0: 5
+              x1: 16
+              y1: 14
+            }
+            w0: 1
+            b1 {
+              x0: 11
+              y0: 1
+              x1: 13
+              y1: 15
+            }
+            w1: -1
+          }
+        }
+        split: 1.2725525
+        output: 1
+      }
+      weight: 0.42839387
+      bias: 0
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 1.0766122
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 4
+              y0: 10
+              x1: 15
+              y1: 12
+            }
+            w0: 1
+            b1 {
+              x0: 8
+              y0: 0
+              x1: 10
+              y1: 11
+            }
+            w1: -1
+          }
+        }
+        split: -0.9254837
+        output: -1
+      }
+      weight: 0.49150631
+      bias: 0
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 0.91990018
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 8
+              y0: 13
+              x1: 12
+              y1: 15
+            }
+            w0: 1
+            b1 {
+              x0: 9
+              y0: 16
+              x1: 13
+              y1: 18
+            }
+            w1: -1
+          }
+        }
+        split: -0.47450638
+        output: -1
+      }
+      weight: 0.48152503
+      bias: 0
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 0.80465895
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 16
+              y0: 15
+              x1: 18
+              y1: 18
+            }
+            w0: 1
+            b1 {
+              x0: 12
+              y0: 15
+              x1: 15
+              y1: 17
+            }
+            w1: -1
+          }
+        }
+        split: -0.29408264
+        output: -1
+      }
+      weight: 0.43573233
+      bias: 0
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 3.4028235e+38
+    active: false
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 16
+              y0: 16
+              x1: 18
+              y1: 18
+            }
+            w0: 1
+            b1 {
+              x0: 12
+              y0: 16
+              x1: 14
+              y1: 18
+            }
+            w1: -1
+          }
+        }
+        split: -0.22548676
+        output: -1
+      }
+      weight: 0.42273709
+      bias: 0
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 0.97633505
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 9
+              y0: 2
+              x1: 16
+              y1: 6
+            }
+            w0: 1
+            b1 {
+              x0: 11
+              y0: 5
+              x1: 17
+              y1: 9
+            }
+            w1: -1
+          }
+        }
+        split: -0.3411808
+        output: -1
+      }
+      weight: 0.37526652
+      bias: 0
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 0.99559593
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 7
+              y0: 1
+              x1: 10
+              y1: 12
+            }
+            w0: 1
+            b1 {
+              x0: 7
+              y0: 4
+              x1: 11
+              y1: 13
+            }
+            w1: -1
+          }
+        }
+        split: -0.99020386
+        output: 1
+      }
+      weight: 0.34476197
+      bias: 0
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 0.67346054
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 5
+              y0: 8
+              x1: 7
+              y1: 11
+            }
+            w0: 1
+            b1 {
+              x0: 2
+              y0: 16
+              x1: 6
+              y1: 18
+            }
+            w1: -1
+          }
+        }
+        split: -0.28235054
+        output: -1
+      }
+      weight: 0.34219819
+      bias: 0
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 1.5505222
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 12
+              y0: 11
+              x1: 14
+              y1: 16
+            }
+            w0: 1
+            b1 {
+              x0: 6
+              y0: 9
+              x1: 18
+              y1: 11
+            }
+            w1: -1
+          }
+        }
+        split: -11.62944
+        output: -1
+      }
+      weight: 0.4004837
+      bias: 0
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 0.69600129
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 6
+              y0: 13
+              x1: 8
+              y1: 18
+            }
+            w0: 1
+            b1 {
+              x0: 5
+              y0: 2
+              x1: 8
+              y1: 6
+            }
+            w1: -1
+          }
+        }
+        split: -1.3666677
+        output: 1
+      }
+      weight: 0.39667931
+      bias: -1.862973
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 0.92588431
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 13
+              y0: 14
+              x1: 17
+              y1: 17
+            }
+            w0: 1
+            b1 {
+              x0: 13
+              y0: 16
+              x1: 18
+              y1: 18
+            }
+            w1: -1
+          }
+        }
+        split: 0.79997253
+        output: 1
+      }
+      weight: 0.32575971
+      bias: -1.862973
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 0.97449636
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 8
+              y0: 3
+              x1: 10
+              y1: 17
+            }
+            w0: 1
+            b1 {
+              x0: 4
+              y0: 4
+              x1: 7
+              y1: 16
+            }
+            w1: -1
+          }
+        }
+        split: 0.06666851
+        output: 1
+      }
+      weight: 0.33055738
+      bias: -1.862973
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 0.98056006
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 0
+              y0: 4
+              x1: 5
+              y1: 11
+            }
+            w0: 1
+            b1 {
+              x0: 0
+              y0: 15
+              x1: 14
+              y1: 18
+            }
+            w1: -1
+          }
+        }
+        split: -3.4666691
+        output: 1
+      }
+      weight: 0.38297784
+      bias: -1.862973
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 1.0769711
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 10
+              y0: 7
+              x1: 14
+              y1: 14
+            }
+            w0: 1
+            b1 {
+              x0: 7
+              y0: 6
+              x1: 10
+              y1: 17
+            }
+            w1: -1
+          }
+        }
+        split: -2.6882439
+        output: -1
+      }
+      weight: 0.37347257
+      bias: -1.862973
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 1.1965358
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 0
+              y0: 5
+              x1: 3
+              y1: 7
+            }
+            w0: 1
+            b1 {
+              x0: 3
+              y0: 2
+              x1: 7
+              y1: 5
+            }
+            w1: -1
+          }
+        }
+        split: -1.2960789
+        output: 1
+      }
+      weight: 0.30624479
+      bias: -1.862973
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 1.3152407
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 5
+              y0: 0
+              x1: 13
+              y1: 2
+            }
+            w0: 1
+            b1 {
+              x0: 16
+              y0: 7
+              x1: 18
+              y1: 9
+            }
+            w1: 1
+          }
+        }
+        split: 12.886286
+        output: 1
+      }
+      weight: 0.32265395
+      bias: -1.862973
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 1.3306053
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 14
+              y0: 5
+              x1: 18
+              y1: 12
+            }
+            w0: 1
+            b1 {
+              x0: 9
+              y0: 12
+              x1: 17
+              y1: 15
+            }
+            w1: -1
+          }
+        }
+        split: 6.156868
+        output: -1
+      }
+      weight: 0.35259241
+      bias: -1.862973
+    }
+  }
+}
+chains {
+  filter {
+    threshold: 1.2399312
+    active: true
+    less: true
+  }
+  chain {
+    stumps {
+      stump {
+        base {
+          type: HAAR
+          haar_data {
+            channel: 0
+            b0 {
+              x0: 13
+              y0: 4
+              x1: 16
+              y1: 11
+            }
+            w0: 1
+            b1 {
+              x0: 6
+              y0: 16
+              x1: 15
+              y1: 18
+            }
+            w1: -1
+          }
+        }
+        split: 1.3764534
+        output: 1
+      }
+      weight: 0.31427443
+      bias: -1.862973
+    }
+  }
+}

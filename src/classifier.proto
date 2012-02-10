@@ -1,0 +1,47 @@
+
+import "feature.proto";
+
+package speedboost;
+
+message StumpMessage {
+  required FeatureMessage base = 1;
+  optional float split = 2 [default = 0.0];
+  optional float output = 3 [default = 1.0];
+}
+
+message WeightedStumpMessage {
+  required StumpMessage stump = 1;
+  optional float weight = 2 [default = 1.0];
+  optional float bias = 3 [default = 0.0];
+}
+
+message ChainMessage {
+  repeated WeightedStumpMessage stumps = 1;
+}
+
+message FilterMessage {
+  optional float threshold = 1 [default = 0.0];
+  optional bool active = 2 [default = true];
+  optional bool less = 3 [default = true];
+}
+
+message FilteredChainMessage {
+  optional FilterMessage filter = 1;
+  optional ChainMessage chain = 2;
+}
+
+message ClassifierMessage {
+  enum Type {
+    BOOSTED = 0;
+    CASCADE = 1;
+    ANYTIME = 2;
+  }
+
+  required Type type = 1 [default = BOOSTED];
+  repeated FilteredChainMessage chains = 2;
+
+  // Patch sizes this classifier was trained for.
+  optional int32 patch_width = 3;
+  optional int32 patch_height = 4;
+  optional int32 patch_depth = 5;
+}
