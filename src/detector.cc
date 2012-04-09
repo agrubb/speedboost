@@ -23,6 +23,10 @@ DEFINE_int32(num_trials, 500000,
 	     "Number of performance trials to run.");
 DEFINE_double(feature_limit, 1000.0,
 	      "Maximum number of features (per pixel) to compute.");
+DEFINE_double(merging_overlap, 0.5,
+	      "Maximum amount detections can overlap and still be considered two "
+              "different detections.  Given as a ratio of the overlapping area to "
+              "the total area of the detection.");
 DEFINE_bool(use_average_features, true,
 	    "Use the average number of features per pixel, instead of the maximum.");
 
@@ -411,7 +415,7 @@ void Detector::ComputeMergedActivation(const Patch& frame, int num_scales, float
     Patch shifted(0, activations[i].width(), activations[i].height(), 1);
     for (int h = 0; h < shifted.height(); h++) {
       for (int w = 0; w < shifted.width(); w++) {
-        shifted.SetValue(w, h, 0, 0.0);
+        shifted.SetValue(w, h, 0, -FLT_MAX);
       }
     }
     float hborder = (FLAGS_patch_height + 1) / 2;
@@ -423,7 +427,8 @@ void Detector::ComputeMergedActivation(const Patch& frame, int num_scales, float
     }
 
     Label l(0, 0, activations[i].width(), activations[i].height());
-    shifted.ExtractLabel(l, &inflated);
+    // Resize image using nearest neighbor
+    shifted.ExtractLabel(l, &inflated, true);
 
     stringstream ss;
     ss << "tmp/shifted." << i << ".pgm";
@@ -439,4 +444,76 @@ void Detector::ComputeMergedActivation(const Patch& frame, int num_scales, float
   }
 }
 
+void Detector::ComputeDetections(const Patch& frame, int num_scales, float scaling_factor,
+                                 float detection_threshold, vector<Label>* detections) {
+  vector<Patch> activations;
+  ComputeActivationPyramid(frame, num_scales, scaling_factor, &activations);
+
+  vector<Label> all_detections;
+  vector<float> all_weights;
+
+  float current_scale = 1.0;
+  for (int i = 0; i < (int)(activations.size()); i++) {
+    for (int h = 0; h < activations[i].height(); h++) {
+      for (int w = 0; w < activations[i].width(); w++) {
+        if (activations[i].Value(w,h,0) > detection_threshold) {
+          Label l(w*current_scale, h*current_scale, FLAGS_patch_width*current_scale, FLAGS_patch_height*current_scale);
+          all_detections.push_back(l);
+          all_weights.push_back(activations[i].Value(w,h,0));
+        }
+      }
+    }
+
+    current_scale = current_scale * scaling_factor;
+  }
+
+  FilterDetections(all_detections, all_weights, FLAGS_merging_overlap, detections);
+}
+
+void Detector::FilterDetections(const vector<Label>& detections, const vector<float>& weights,
+                                float overlap, vector<Label>* filtered) {
+  cout << "Filtering detections..." << endl;
+  cout << "Starting with " << detections.size() << " detections." << endl;
+
+  vector< pair<float, int> > sortable(detections.size());
+  for(int i = 0; i < (int)(detections.size()); i++) {
+    sortable[i].first = weights[i];
+    sortable[i].second = i;
+    
+    sort(sortable.begin(), sortable.end());
+  }
+
+  for (int i = (int)(detections.size()) - 1; i >= 0; i--) {
+    bool passed = true;
+    for (int j = 0; j < (int)(filtered->size()); j++) {
+      // Check overlap between candidate and already selected detection.
+      int dx = detections[i].x();
+      int dy = detections[i].y();
+      int dw = detections[i].w();
+      int dh = detections[i].h();
+      int fx = (*filtered)[j].x();
+      int fy = (*filtered)[j].y();
+      int fw = (*filtered)[j].w();
+      int fh = (*filtered)[j].h();
+
+      int x1 = max(dx, fx);
+      int y1 = max(dy, fy);
+      int x2 = min(dx + dw, fx + fw);
+      int y2 = min(dy + dh, fy + fh);
+      
+      int w = max(0, x2 - x1);
+      int h = max(0, y2 - y1);
+
+      if (w * h > overlap * (float)(dw * dh)) {
+        passed = false;
+        break;
+      }
+    }
+    
+    if (passed) {
+      filtered->push_back(detections[i]);
+    }
+  }
+  cout << "Finished with " << filtered->size() << " detections." << endl;
+}
 }  // namespace speedboost

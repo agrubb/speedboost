@@ -126,8 +126,11 @@ public:
    * in patch.  If the size of patch and label are different,
    * extract label will scale the extracted area up/down as
    * appropriate.
+   * 
+   * If nearest == true, just use nearest neighbor for rescaling,
+   * otherwise, use area-based (shrinking) or linear interpolation (enlarging).
    */
-  void ExtractLabel(const Label& label, Patch* patch) const;
+  void ExtractLabel(const Label& label, Patch* patch, bool nearest=false) const;
 
   /**
    * Extract every patch of size [width x height], with step pixels between
@@ -168,6 +171,7 @@ public:
 protected:
   void ExtractLabelArea(const Label& label, Patch* patch) const;
   void ExtractLabelInterp(const Label& label, Patch* patch) const;
+  void ExtractLabelNearest(const Label& label, Patch* patch) const;
 
   char label_;
   int width_, height_, channels_;

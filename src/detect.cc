@@ -23,13 +23,51 @@ DEFINE_string(frame_filename, "",
               "Image file containing the test frame.");
 DEFINE_string(classifier_filename, "",
               "File containing the trained classifier.");
-DEFINE_string(activations_filename, "activations.pgm",
-	      "File to output the merged activation image too.");
+DEFINE_string(activation_image_filename, "activation.pgm",
+	      "File to output the merged activation image to.");
+DEFINE_bool(compute_activations, false,
+            "Compute the activation image.");
+DEFINE_bool(compute_detections, true,
+            "Compute the detections for input frame.");
+DEFINE_string(detection_image_filename, "detections.ppm",
+	      "File to output the detection image (drawn rectangles) to.");
 DEFINE_int32(num_scales, 3,
              "Number of scales in image pyramid.");
 DEFINE_double(scaling_factor, 1.2,
               "Factor that each image scales down by in pyramid, "
               "i.e. successive levels are scaling_factor apart in size.");
+DEFINE_double(detection_threshold, 0.0,
+              "Any patches with activation > detection_threshold are considered "
+              "to be positive detections.");
+
+void DrawDetection(const Label& det, Patch* image)
+{
+  int x1 = det.x();
+  int y1 = det.y();
+  int x2 = det.x() + det.w() - 1;
+  int y2 = det.y() + det.h() - 1;
+
+  // Top and bottom line
+  for (int x = x1; x <= x2; x++) {
+    image->SetValue(x, y1, 0, 0.5);
+    image->SetValue(x, y1, 1, 1.0);
+    image->SetValue(x, y1, 2, 0.5);
+
+    image->SetValue(x, y2, 0, 0.5);
+    image->SetValue(x, y2, 1, 1.0);
+    image->SetValue(x, y2, 2, 0.5);
+  }
+
+  for (int y = y1; y <= y2; y++) {
+    image->SetValue(x1, y, 0, 0.5);
+    image->SetValue(x1, y, 1, 1.0);
+    image->SetValue(x1, y, 2, 0.5);
+
+    image->SetValue(x2, y, 0, 0.5);
+    image->SetValue(x2, y, 1, 1.0);
+    image->SetValue(x2, y, 2, 0.5);
+  }
+}
 
 int main(int argc, char*argv[])
 {
@@ -51,17 +89,46 @@ int main(int argc, char*argv[])
   c.ReadFromFile(FLAGS_classifier_filename);
 
   Detector detector(&c);
-  Patch activations(0, frame.width(), frame.height(), 1);
-  detector.ComputeMergedActivation(frame, FLAGS_num_scales, FLAGS_scaling_factor, &activations);
 
-  // Transform the activations with a sigmoid for outputs in [0,1].
-  for (int w = 0; w < activations.width(); w++) {
-    for (int h = 0; h < activations.height(); h++) {
-      float a = activations.Value(w, h, 0);
-      activations.SetValue(w, h, 0, exp(a) / (1.0 + exp(a)));
+  if (FLAGS_compute_detections) {
+    vector<Label> detections;
+    detector.ComputeDetections(frame, FLAGS_num_scales, FLAGS_scaling_factor, FLAGS_detection_threshold, &detections);
+
+    cout << "Detections:" << endl;
+    for (int i = 0; i < (int)(detections.size()); i++) {
+      cout << "(" << detections[i].x() << "," << detections[i].y() << ")"
+           << " [" << detections[i].w() << "x" << detections[i].h() << "]" << endl;
+    }
+
+    if (FLAGS_detection_image_filename != "") {
+      // Load the test frame and classifier.
+      Magick::Image color_img(FLAGS_frame_filename);
+      color_img.type(Magick::TrueColorType);
+
+      Patch detection_image(0, img.columns(), img.rows(), 3);
+      ImageToPatch(color_img, &detection_image);
+        
+      for (int i = 0; i < (int)(detections.size()); i++) {
+        DrawDetection(detections[i], &detection_image);
+      }
+
+      detection_image.WritePPM(FLAGS_detection_image_filename);
     }
   }
-  activations.WritePGM(FLAGS_activations_filename);
 
-  return 0;
+  if (FLAGS_compute_activations) {
+    Patch activations(0, frame.width(), frame.height(), 1);
+    detector.ComputeMergedActivation(frame, FLAGS_num_scales, FLAGS_scaling_factor, &activations);
+    
+    // Transform the activations with a sigmoid for outputs in [0,1].
+    for (int w = 0; w < activations.width(); w++) {
+      for (int h = 0; h < activations.height(); h++) {
+        float a = activations.Value(w, h, 0);
+        activations.SetValue(w, h, 0, exp(a) / (1.0 + exp(a)));
+      }
+    }
+    activations.WritePGM(FLAGS_activation_image_filename);
+    
+    return 0;
+  }
 }

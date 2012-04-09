@@ -73,7 +73,7 @@ void Patch::ComputeIntegralImage() {
   }
 }
 
-void Patch::ExtractLabel(const Label& l, Patch* p) const {
+  void Patch::ExtractLabel(const Label& l, Patch* p, bool nearest) const {
   assert(channels() == p->channels());
   
   if ((l.w() == p->width()) && (l.h() == p->height())) {
@@ -84,6 +84,8 @@ void Patch::ExtractLabel(const Label& l, Patch* p) const {
 	}
       }
     }
+  } else if (nearest) {
+    ExtractLabelNearest(l, p);
   } else if ((l.w() > p->width()) && (l.h() > p->height())) {
     // Label is larger than patch, i.e. we are shrinking the image.
     ExtractLabelArea(l, p);
@@ -223,6 +225,33 @@ void Patch::ExtractLabelInterp(const Label& l, Patch* p) const {
 	float inter0 = (1.0-py)*Value(xa, ya, c) + (py)*Value(xa, yb, c);
 	float inter1 = (1.0-py)*Value(xb, ya, c) + (py)*Value(xb, yb, c);
 	p->SetValue(x, y, c, (1.0-px)*inter0 + (px)*inter1);
+      }
+    }
+  }
+}
+
+void Patch::ExtractLabelNearest(const Label& l, Patch* p) const {
+  int lw = l.w();
+  int lh = l.h();
+  int pw = p->width();
+  int ph = p->height();
+  int x0 = l.x();
+  int y0 = l.y();
+  float xscale = float(lw)/float(pw);
+  float yscale = float(lh)/float(ph);
+
+  for (int x = 0; x < pw; x++) {
+    for (int y = 0; y < ph; y++) {
+      float ix = (x + 0.5)*xscale;
+      float iy = (y + 0.5)*yscale;
+      int xn = (int)(ix + x0);  // Really ix + x0 - 0.5 + 0.5
+      int yn = (int)(iy + y0);  // Really ix + y0 - 0.5 + 0.5
+
+      xn = min(width()-1, max(0, xn));
+      yn = min(height()-1, max(0, yn));
+
+      for (int c = 0; c < channels(); c++) {
+	p->SetValue(x, y, c, Value(xn, yn, c));
       }
     }
   }

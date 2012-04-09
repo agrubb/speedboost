@@ -136,11 +136,15 @@ public:
   /**
    * Compute the detections for the frame corresponding to the activations
    * in the activation pyramid.
-   *
-   * Intelligent merging of overlapping detections not completely working yet.
    */
-  void ComputeDetections(const Patch& frame, int num_scales, float scaling_factor,
+  void ComputeDetections(const Patch& frame, int num_scales, float scaling_factor, float detection_threshold,
                          std::vector<Label>* detections);
+
+  /**
+   * Filter out the overlapping detections.
+   */
+  void FilterDetections(const std::vector<Label>& detections, const std::vector<float>& weights,
+                        float overlap, std::vector<Label>* filtered);
 
   void Tic() {
     gettimeofday(&start_, NULL);
