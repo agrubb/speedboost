@@ -96,8 +96,6 @@ SingleScaleDetector::SingleScaleDetector(Classifier* c, Patch* integral)
       default_indices_.push_back(h * integral->width() + w);
     }
   }
-
-  cout << num_pixels_ << " pixels, with " << default_indices_.size() << " indices" << endl;
 }
 
 void SingleScaleDetector::EvaluateAllPatches(float weight, const DecisionStump& stump, const Patch& frame, Patch* activations) {

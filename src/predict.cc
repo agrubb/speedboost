@@ -24,8 +24,10 @@ DEFINE_string(statistics_filename, "stats.csv",
               "File to save prediction statistics to.");
 DEFINE_int32(max_negatives, 50000, "Number of negative samples to use");
 DEFINE_int32(max_positives, 10000, "Number of positive samples to use");
-DEFINE_int32(roc_output_iteration, 100, "");
-DEFINE_string(roc_output, "results/roc.csv", "");
+DEFINE_int32(roc_output_iteration, 100,
+             "Stage to output an ROC curve on.");
+DEFINE_string(roc_output, "",
+              "Filename to output ROC curve (as a csv file) to.");
 
 int main(int argc, char*argv[])
 {

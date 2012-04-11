@@ -830,7 +830,7 @@ void OutputROC(string filename, const vector<Patch>& patches,
   ofstream roc_file(filename.c_str(), ofstream::out);
 
   vector< pair<float, char> > sortable(patches.size());
-  for (unsigned int p = 0; p < patches.size(); p++) {
+  for (int p = 0; p < (int)(patches.size()); p++) {
     sortable[p].first = activations[p];
     sortable[p].second = patches[p].label();
   }
@@ -840,7 +840,7 @@ void OutputROC(string filename, const vector<Patch>& patches,
   int positives = 0;
   int negatives = 0;
 
-  for (unsigned int p = 0; p < patches.size() - 1; p++) {
+  for (int p = 0; p < (int)(patches.size() - 1); p++) {
     if (sortable[p].second > 0) {
       positives++;
     } else {
@@ -852,7 +852,7 @@ void OutputROC(string filename, const vector<Patch>& patches,
   float false_positives = 0;
 
   roc_file << "0,0" << endl;
-  for (unsigned int p = patches.size() - 1; p >= 0; p--) {
+  for (int p = (int)(patches.size() - 1); p >= 0; p--) {
     if (sortable[p].second > 0) {
       true_positives++;
     } else {
@@ -930,7 +930,7 @@ void GenerateStatistics(string filename, const vector<Patch>& patches,
       
     }
 
-    if (i == roc_iteration) {
+    if ((roc_filename != "") && (i == roc_iteration)) {
       OutputROC(roc_filename, patches, activations);
     }
 
