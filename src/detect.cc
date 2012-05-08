@@ -23,14 +23,24 @@ DEFINE_string(frame_filename, "",
               "Image file containing the test frame.");
 DEFINE_string(classifier_filename, "",
               "File containing the trained classifier.");
-DEFINE_string(activation_image_filename, "activation.pgm",
-	      "File to output the merged activation image to.");
+
 DEFINE_bool(compute_activations, false,
             "Compute the activation image.");
+DEFINE_string(activation_image_filename, "activation.pgm",
+	      "File to output the merged activation image to.");
+
 DEFINE_bool(compute_detections, true,
             "Compute the detections for input frame.");
 DEFINE_string(detection_image_filename, "detections.ppm",
 	      "File to output the detection image (drawn rectangles) to.");
+
+DEFINE_bool(compute_updates, false,
+            "Compute the updates (# of features computed per pixel) for input frame.");
+DEFINE_string(update_image_filename, "updates.ppm",
+	      "File to output the update image (stand in for work performed) to.");
+DEFINE_double(max_updates, 255,
+              "Value to use as the maximum number of updates any single pixel will see.");
+
 DEFINE_int32(num_scales, 3,
              "Number of scales in image pyramid.");
 DEFINE_double(scaling_factor, 1.2,
@@ -128,7 +138,21 @@ int main(int argc, char*argv[])
       }
     }
     activations.WritePGM(FLAGS_activation_image_filename);
-    
-    return 0;
   }
+
+  if (FLAGS_compute_updates) {
+    Patch updates(0, frame.width(), frame.height(), 1);
+    detector.ComputeMergedUpdates(frame, FLAGS_num_scales, FLAGS_scaling_factor, &updates);
+    
+    // Transform the updates by dividing by max.
+    for (int w = 0; w < updates.width(); w++) {
+      for (int h = 0; h < updates.height(); h++) {
+        float a = updates.Value(w, h, 0);
+        updates.SetValue(w, h, 0, a / FLAGS_max_updates);
+      }
+    }
+    updates.WritePGM(FLAGS_update_image_filename);
+  }
+
+  return 0;
 }

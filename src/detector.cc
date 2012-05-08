@@ -327,7 +327,8 @@ Detector::Detector(Classifier* c)
 
 void Detector::SetupForFrame(const Patch& frame, int num_scales, float scaling_factor,
                              vector<Patch>* scaled_integrals, vector<Patch>* scaled_activations,
-                             vector<SingleScaleDetector>* scaled_detectors) {
+                             vector<SingleScaleDetector>* scaled_detectors,
+                             vector<Patch>* scaled_updates) {
   scaled_integrals->clear();
   scaled_activations->clear();
   scaled_detectors->clear();
@@ -343,6 +344,12 @@ void Detector::SetupForFrame(const Patch& frame, int num_scales, float scaling_f
 
     scaled_integrals->push_back(integral);
     scaled_activations->push_back(activations);
+
+    if (scaled_updates) {
+      Patch updates(0, frame.width()*current_scale, frame.height()*current_scale, 1);
+      scaled_updates->push_back(updates);
+    }
+
     current_scale = current_scale / scaling_factor;
   }
 
@@ -353,11 +360,12 @@ void Detector::SetupForFrame(const Patch& frame, int num_scales, float scaling_f
 }
 
 void Detector::ComputeActivationPyramid(const Patch& frame, int num_scales, float scaling_factor,
-                                        vector<Patch>* scaled_activations) {
+                                        vector<Patch>* scaled_activations,
+                                        vector<Patch>* scaled_updates) {
   vector<Patch> scaled_integrals;
   vector<SingleScaleDetector> scaled_detectors;
   SetupForFrame(frame, num_scales, scaling_factor,
-                &scaled_integrals, scaled_activations, &scaled_detectors);
+                &scaled_integrals, scaled_activations, &scaled_detectors, scaled_updates);
 
   Tic();
 
@@ -365,7 +373,11 @@ void Detector::ComputeActivationPyramid(const Patch& frame, int num_scales, floa
   float frame_index = 0;
   while (scaled_detectors[0].HasMoreFeatures() && (features_computed < FLAGS_feature_limit)) {
     for (int i = 0; i < (int)(scaled_detectors.size()); i++) {
-      scaled_detectors[i].ComputeNextFeature(sequencer_, &((*scaled_activations)[i]));
+      if (scaled_updates) {
+        scaled_detectors[i].ComputeNextFeature(sequencer_, &((*scaled_activations)[i]), &((*scaled_updates)[i]));
+      } else {
+        scaled_detectors[i].ComputeNextFeature(sequencer_, &((*scaled_activations)[i]));
+      }
     }
 
     if (FLAGS_use_average_features) {
@@ -421,6 +433,53 @@ void Detector::ComputeMergedActivation(const Patch& frame, int num_scales, float
     for (int h = 0; h < shifted.height() - FLAGS_patch_height + 1; h++) {
       for (int w = 0; w < shifted.width() - FLAGS_patch_width + 1; w++) {
         shifted.SetValue(w + wborder, h + hborder, 0, activations[i].Value(w, h, 0));
+      }
+    }
+
+    Label l(0, 0, activations[i].width(), activations[i].height());
+    // Resize image using nearest neighbor
+    shifted.ExtractLabel(l, &inflated, true);
+
+    stringstream ss;
+    ss << "tmp/shifted." << i << ".pgm";
+    string filename = ss.str();
+    OutputActivation(shifted, filename);
+
+    for (int h = 0; h < frame.height(); h++) {
+      for (int w = 0; w < frame.width(); w++) {
+        merged->SetValue(w, h, 0, max(merged->Value(w, h, 0),
+                                      inflated.Value(w, h, 0)));
+      }
+    }
+  }
+}
+
+void Detector::ComputeMergedUpdates(const Patch& frame, int num_scales, float scaling_factor, Patch* merged) {
+  vector<Patch> activations;
+  vector<Patch> updates;
+  ComputeActivationPyramid(frame, num_scales, scaling_factor, &activations, &updates);
+
+  Patch inflated(0, frame.width(), frame.height(), 1);
+  *merged = Patch(0, frame.width(), frame.height(), 1);
+  for (int h = 0; h < frame.height(); h++) {
+    for (int w = 0; w < frame.width(); w++) {
+      merged->SetValue(w, h, 0, -FLT_MAX);
+    }
+  }
+    
+  for (int i = 0; i < (int)(activations.size()); i++) {
+    // First shift image so border is centered.
+    Patch shifted(0, activations[i].width(), activations[i].height(), 1);
+    for (int h = 0; h < shifted.height(); h++) {
+      for (int w = 0; w < shifted.width(); w++) {
+        shifted.SetValue(w, h, 0, -FLT_MAX);
+      }
+    }
+    float hborder = (FLAGS_patch_height + 1) / 2;
+    float wborder = (FLAGS_patch_width + 1) / 2;
+    for (int h = 0; h < shifted.height() - FLAGS_patch_height + 1; h++) {
+      for (int w = 0; w < shifted.width() - FLAGS_patch_width + 1; w++) {
+        shifted.SetValue(w + wborder, h + hborder, 0, updates[i].Value(w, h, 0));
       }
     }
 

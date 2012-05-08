@@ -123,7 +123,8 @@ public:
    * with 0 activation, as no patches can start at these pixels.
    */
   void ComputeActivationPyramid(const Patch& frame, int num_scales, float scaling_factor,
-                                std::vector<Patch>* activation_pyramid);
+                                std::vector<Patch>* activation_pyramid,
+                                std::vector<Patch>* update_pyramid = NULL);
 
   /**
    * Compute the activation pyramid, and then rescale each level back to
@@ -132,6 +133,15 @@ public:
    */
   void ComputeMergedActivation(const Patch& frame, int num_scales, float scaling_factor,
                                Patch* merged);
+
+
+  /**
+   * Compute the updates (work performed) for each level in the pyramid, and then
+   * rescale each level back to the original image size and merge the results by
+   * taking the maxmimum number of updates for each pixel across all scales.
+   */
+  void ComputeMergedUpdates(const Patch& frame, int num_scales, float scaling_factor,
+                            Patch* merged);
 
   /**
    * Compute the detections for the frame corresponding to the activations
@@ -160,7 +170,8 @@ public:
 protected:
   void SetupForFrame(const Patch& frame, int num_scales, float scaling_factor,
                      std::vector<Patch>* scaled_integrals, std::vector<Patch>* scaled_activations,
-                     std::vector<SingleScaleDetector>* scaled_detectors);
+                     std::vector<SingleScaleDetector>* scaled_detectors,
+                     std::vector<Patch>* scaled_updates = NULL);
 
   Classifier* c_;
   Sequencer sequencer_;
