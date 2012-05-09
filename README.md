@@ -28,5 +28,6 @@ Building the code will generate a number of binaries in the bin/ directory:
 - predict -- Takes loaded patches and a classifier, and generates statistics
   on prediction performance, etc.
 - detect -- Takes an image and a classifier and runs actual object detection
-  on the image.  Can output either a heatmap or labeled detections (not working yet).
+  on the image.  Can output either a heatmap, labeled detections, or a heatmap
+  of the work done on each pixel.
 
