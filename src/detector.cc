@@ -321,11 +321,13 @@ void SingleScaleDetector::ComputeNextFeature(const Sequencer& sequencer,
   // cout << endl;
 }
 
-Detector::Detector(Classifier* c)
-  : c_(c), sequencer_(c) {
+Detector::Detector(Classifier* c, int num_scales, float scaling_factor, float detection_threshold)
+  : c_(c), sequencer_(c),
+    num_scales_(num_scales), scaling_factor_(scaling_factor), detection_threshold_(detection_threshold)
+{
 }
 
-void Detector::SetupForFrame(const Patch& frame, int num_scales, float scaling_factor,
+void Detector::SetupForFrame(const Patch& frame,
                              vector<Patch>* scaled_integrals, vector<Patch>* scaled_activations,
                              vector<SingleScaleDetector>* scaled_detectors,
                              vector<Patch>* scaled_updates) {
@@ -334,7 +336,7 @@ void Detector::SetupForFrame(const Patch& frame, int num_scales, float scaling_f
   scaled_detectors->clear();
 
   float current_scale = 1.0;
-  for (int i = 0; i < num_scales; i++) {
+  for (int i = 0; i < num_scales_; i++) {
     Patch integral(0, frame.width()*current_scale, frame.height()*current_scale, 1);
     Patch activations(0, frame.width()*current_scale, frame.height()*current_scale, 1);
     Label l(0, 0, frame.width(), frame.height());
@@ -350,22 +352,21 @@ void Detector::SetupForFrame(const Patch& frame, int num_scales, float scaling_f
       scaled_updates->push_back(updates);
     }
 
-    current_scale = current_scale / scaling_factor;
+    current_scale = current_scale / scaling_factor_;
   }
 
   // Make these after to avoid memory issues.
-  for (int i = 0; i < num_scales; i++) {
+  for (int i = 0; i < num_scales_; i++) {
     scaled_detectors->push_back(SingleScaleDetector(c_, &(*scaled_integrals)[i]));
   }
 }
 
-void Detector::ComputeActivationPyramid(const Patch& frame, int num_scales, float scaling_factor,
+void Detector::ComputeActivationPyramid(const Patch& frame,
                                         vector<Patch>* scaled_activations,
                                         vector<Patch>* scaled_updates) {
   vector<Patch> scaled_integrals;
   vector<SingleScaleDetector> scaled_detectors;
-  SetupForFrame(frame, num_scales, scaling_factor,
-                &scaled_integrals, scaled_activations, &scaled_detectors, scaled_updates);
+  SetupForFrame(frame, &scaled_integrals, scaled_activations, &scaled_detectors, scaled_updates);
 
   Tic();
 
@@ -383,7 +384,7 @@ void Detector::ComputeActivationPyramid(const Patch& frame, int num_scales, floa
     if (FLAGS_use_average_features) {
       features_computed = 0;
       for (int i = 0; i < (int)(scaled_detectors.size()); i++) {
-        features_computed += scaled_detectors[i].FeaturesPerPixel() / (float)num_scales;
+        features_computed += scaled_detectors[i].FeaturesPerPixel() / (float)num_scales_;
       }
     } else {
       features_computed++;
@@ -400,6 +401,7 @@ void Detector::ComputeActivationPyramid(const Patch& frame, int num_scales, floa
   cout << "Time elapsed: " << Toc() << endl;
   cout << "Total features computed: " << features_computed << " in " << frame_index << " stages." << endl;
   cout << "Total patches evaluated: " << total_num_pixels << ", total feature computations: " << total_updated_pixels << endl;
+
 }
 
 void OutputActivation(const Patch& activations, string filename) {
@@ -415,9 +417,9 @@ void OutputActivation(const Patch& activations, string filename) {
   p.WritePGM(filename);
 }
 
-void Detector::ComputeMergedActivation(const Patch& frame, int num_scales, float scaling_factor, Patch* merged) {
+void Detector::ComputeMergedActivation(const Patch& frame, Patch* merged) {
   vector<Patch> activations;
-  ComputeActivationPyramid(frame, num_scales, scaling_factor, &activations);
+  ComputeActivationPyramid(frame, &activations);
 
   Patch inflated(0, frame.width(), frame.height(), 1);
   *merged = Patch(0, frame.width(), frame.height(), 1);
@@ -461,10 +463,10 @@ void Detector::ComputeMergedActivation(const Patch& frame, int num_scales, float
   }
 }
 
-void Detector::ComputeMergedUpdates(const Patch& frame, int num_scales, float scaling_factor, Patch* merged) {
+void Detector::ComputeMergedUpdates(const Patch& frame, Patch* merged) {
   vector<Patch> activations;
   vector<Patch> updates;
-  ComputeActivationPyramid(frame, num_scales, scaling_factor, &activations, &updates);
+  ComputeActivationPyramid(frame, &activations, &updates);
 
   Patch inflated(0, frame.width(), frame.height(), 1);
   *merged = Patch(0, frame.width(), frame.height(), 1);
@@ -508,10 +510,9 @@ void Detector::ComputeMergedUpdates(const Patch& frame, int num_scales, float sc
   }
 }
 
-void Detector::ComputeDetections(const Patch& frame, int num_scales, float scaling_factor,
-                                 float detection_threshold, vector<Label>* detections) {
+void Detector::ComputeDetections(const Patch& frame, vector<Label>* detections) {
   vector<Patch> activations;
-  ComputeActivationPyramid(frame, num_scales, scaling_factor, &activations);
+  ComputeActivationPyramid(frame, &activations);
 
   vector<Label> all_detections;
   vector<float> all_weights;
@@ -520,7 +521,7 @@ void Detector::ComputeDetections(const Patch& frame, int num_scales, float scali
   for (int i = 0; i < (int)(activations.size()); i++) {
     for (int h = 0; h < activations[i].height(); h++) {
       for (int w = 0; w < activations[i].width(); w++) {
-        if (activations[i].Value(w,h,0) > detection_threshold) {
+        if (activations[i].Value(w,h,0) > detection_threshold_) {
           Label l(w*current_scale, h*current_scale, FLAGS_patch_width*current_scale, FLAGS_patch_height*current_scale);
           all_detections.push_back(l);
           all_weights.push_back(activations[i].Value(w,h,0));
@@ -528,7 +529,7 @@ void Detector::ComputeDetections(const Patch& frame, int num_scales, float scali
       }
     }
 
-    current_scale = current_scale * scaling_factor;
+    current_scale = current_scale * scaling_factor_;
   }
 
   FilterDetections(all_detections, all_weights, FLAGS_merging_overlap, detections);

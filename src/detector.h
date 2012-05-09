@@ -110,7 +110,7 @@ private:
  */
 class Detector {
 public:
-  Detector(Classifier* c);
+  Detector(Classifier* c, int num_scales, float scaling_factor, float detection_threshold);
 
   /**
    * Builds and computes the activation pyramid for a given frame.
@@ -126,8 +126,7 @@ public:
    * frame.  This means there will be a strip on the lower and right edges
    * with 0 activation, as no patches can start at these pixels.
    */
-  void ComputeActivationPyramid(const Patch& frame, int num_scales, float scaling_factor,
-                                std::vector<Patch>* activation_pyramid,
+  void ComputeActivationPyramid(const Patch& frame, std::vector<Patch>* activation_pyramid,
                                 std::vector<Patch>* update_pyramid = NULL);
 
   /**
@@ -135,8 +134,7 @@ public:
    * the original image size and merge the results by taking the maxmimum
    * activation for each pixel across all scales.
    */
-  void ComputeMergedActivation(const Patch& frame, int num_scales, float scaling_factor,
-                               Patch* merged);
+  void ComputeMergedActivation(const Patch& frame, Patch* merged);
 
 
   /**
@@ -144,15 +142,13 @@ public:
    * rescale each level back to the original image size and merge the results by
    * taking the maxmimum number of updates for each pixel across all scales.
    */
-  void ComputeMergedUpdates(const Patch& frame, int num_scales, float scaling_factor,
-                            Patch* merged);
+  void ComputeMergedUpdates(const Patch& frame, Patch* merged);
 
   /**
    * Compute the detections for the frame corresponding to the activations
    * in the activation pyramid.
    */
-  void ComputeDetections(const Patch& frame, int num_scales, float scaling_factor, float detection_threshold,
-                         std::vector<Label>* detections);
+  void ComputeDetections(const Patch& frame, std::vector<Label>* detections);
 
   /**
    * Filter out the overlapping detections.
@@ -172,13 +168,17 @@ public:
   }
 
 protected:
-  void SetupForFrame(const Patch& frame, int num_scales, float scaling_factor,
+  void SetupForFrame(const Patch& frame,
                      std::vector<Patch>* scaled_integrals, std::vector<Patch>* scaled_activations,
                      std::vector<SingleScaleDetector>* scaled_detectors,
                      std::vector<Patch>* scaled_updates = NULL);
 
   Classifier* c_;
   Sequencer sequencer_;
+
+  int num_scales_;
+  float scaling_factor_;
+  float detection_threshold_;
 
   struct timeval start_, end_;
 };

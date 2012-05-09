@@ -111,10 +111,10 @@ TEST(DetectorTest, ComputeActivationPyramidMultiScale) {
   Patch frame(0, img.columns(), img.rows(), 1);
   ImageToPatch(img, &frame);
 
-  Detector detect(&c);
+  Detector detect(&c, 3, 1.3, 0.0);
   vector<Patch> activation_pyramid;
 
-  detect.ComputeActivationPyramid(frame, 3, 1.3, &activation_pyramid);
+  detect.ComputeActivationPyramid(frame, &activation_pyramid);
   
   // Output images for manual inspection.
   for (int i = 0; i < (int)(activation_pyramid.size()); i++) {
@@ -155,9 +155,9 @@ TEST(DetectorTest, ComputeActivationPyramidSingleScale) {
   Patch frame(0, img.columns(), img.rows(), 1);
   ImageToPatch(img, &frame);
 
-  Detector detect(&c);
+  Detector detect(&c, 1, 1.0, 0.0);
   vector<Patch> activation_pyramid;
-  detect.ComputeActivationPyramid(frame, 1, 1.0, &activation_pyramid);
+  detect.ComputeActivationPyramid(frame, &activation_pyramid);
 
   ASSERT_EQ(activation_pyramid.size(), 1);
   VerifyActivations(activation_pyramid[0], frame, c, 0.02);

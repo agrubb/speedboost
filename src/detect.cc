@@ -98,11 +98,11 @@ int main(int argc, char*argv[])
   Classifier c;
   c.ReadFromFile(FLAGS_classifier_filename);
 
-  Detector detector(&c);
+  Detector detector(&c, FLAGS_num_scales, FLAGS_scaling_factor, FLAGS_detection_threshold);
 
   if (FLAGS_compute_detections) {
     vector<Label> detections;
-    detector.ComputeDetections(frame, FLAGS_num_scales, FLAGS_scaling_factor, FLAGS_detection_threshold, &detections);
+    detector.ComputeDetections(frame, &detections);
 
     cout << "Detections:" << endl;
     for (int i = 0; i < (int)(detections.size()); i++) {
@@ -128,7 +128,7 @@ int main(int argc, char*argv[])
 
   if (FLAGS_compute_activations) {
     Patch activations(0, frame.width(), frame.height(), 1);
-    detector.ComputeMergedActivation(frame, FLAGS_num_scales, FLAGS_scaling_factor, &activations);
+    detector.ComputeMergedActivation(frame, &activations);
     
     // Transform the activations with a sigmoid for outputs in [0,1].
     for (int w = 0; w < activations.width(); w++) {
@@ -142,7 +142,7 @@ int main(int argc, char*argv[])
 
   if (FLAGS_compute_updates) {
     Patch updates(0, frame.width(), frame.height(), 1);
-    detector.ComputeMergedUpdates(frame, FLAGS_num_scales, FLAGS_scaling_factor, &updates);
+    detector.ComputeMergedUpdates(frame, &updates);
     
     // Transform the updates by dividing by max.
     for (int w = 0; w < updates.width(); w++) {
