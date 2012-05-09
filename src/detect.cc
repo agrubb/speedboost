@@ -41,6 +41,14 @@ DEFINE_string(update_image_filename, "updates.ppm",
 DEFINE_double(max_updates, 255,
               "Value to use as the maximum number of updates any single pixel will see.");
 
+DEFINE_double(initial_scale, 1.0,
+              "The initial scale to start detection objects at.  "
+              "If not changed from the default, the scale will be calculated adaptively "
+              "using smallest_detection_ratio.");
+DEFINE_double(smallest_detection_ratio, 0.1,
+              "If initial_scale not changed from default, this ratio will be used to calculate "
+              "an initial_scale that corresponds to the smallest detection having this fraction "
+              "of the entire image area.");
 DEFINE_int32(num_scales, 3,
              "Number of scales in image pyramid.");
 DEFINE_double(scaling_factor, 1.2,
@@ -98,7 +106,15 @@ int main(int argc, char*argv[])
   Classifier c;
   c.ReadFromFile(FLAGS_classifier_filename);
 
-  Detector detector(&c, FLAGS_num_scales, FLAGS_scaling_factor, FLAGS_detection_threshold);
+  if (google::GetCommandLineFlagInfoOrDie("initial_scale").is_default) {
+    float smallest_area = frame.width() * frame.height() * FLAGS_smallest_detection_ratio;
+    float patch_area = FLAGS_patch_width * FLAGS_patch_height;
+    float scale = sqrt(smallest_area / patch_area);
+    cout << "Setting FLAGS_initial_scale to: " << scale << endl;
+    FLAGS_initial_scale = scale;
+  }
+
+  Detector detector(&c, FLAGS_initial_scale, FLAGS_num_scales, FLAGS_scaling_factor, FLAGS_detection_threshold);
 
   if (FLAGS_compute_detections) {
     vector<Label> detections;

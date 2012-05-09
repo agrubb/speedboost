@@ -111,7 +111,7 @@ TEST(DetectorTest, ComputeActivationPyramidMultiScale) {
   Patch frame(0, img.columns(), img.rows(), 1);
   ImageToPatch(img, &frame);
 
-  Detector detect(&c, 3, 1.3, 0.0);
+  Detector detect(&c, 1.0, 3, 1.3, 0.0);
   vector<Patch> activation_pyramid;
 
   detect.ComputeActivationPyramid(frame, &activation_pyramid);
@@ -155,7 +155,7 @@ TEST(DetectorTest, ComputeActivationPyramidSingleScale) {
   Patch frame(0, img.columns(), img.rows(), 1);
   ImageToPatch(img, &frame);
 
-  Detector detect(&c, 1, 1.0, 0.0);
+  Detector detect(&c, 1.0, 1, 1.0, 0.0);
   vector<Patch> activation_pyramid;
   detect.ComputeActivationPyramid(frame, &activation_pyramid);
 

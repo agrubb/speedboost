@@ -110,7 +110,8 @@ private:
  */
 class Detector {
 public:
-  Detector(Classifier* c, int num_scales, float scaling_factor, float detection_threshold);
+  Detector(Classifier* c, float initial_scale,
+           int num_scales, float scaling_factor, float detection_threshold);
 
   /**
    * Builds and computes the activation pyramid for a given frame.
@@ -176,6 +177,7 @@ protected:
   Classifier* c_;
   Sequencer sequencer_;
 
+  float initial_scale_;
   int num_scales_;
   float scaling_factor_;
   float detection_threshold_;

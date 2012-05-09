@@ -321,9 +321,9 @@ void SingleScaleDetector::ComputeNextFeature(const Sequencer& sequencer,
   // cout << endl;
 }
 
-Detector::Detector(Classifier* c, int num_scales, float scaling_factor, float detection_threshold)
-  : c_(c), sequencer_(c),
-    num_scales_(num_scales), scaling_factor_(scaling_factor), detection_threshold_(detection_threshold)
+Detector::Detector(Classifier* c, float initial_scale, int num_scales, float scaling_factor, float detection_threshold)
+  : c_(c), sequencer_(c), initial_scale_(initial_scale), num_scales_(num_scales),
+    scaling_factor_(scaling_factor), detection_threshold_(detection_threshold)
 {
 }
 
@@ -335,7 +335,7 @@ void Detector::SetupForFrame(const Patch& frame,
   scaled_activations->clear();
   scaled_detectors->clear();
 
-  float current_scale = 1.0;
+  float current_scale = 1.0 / initial_scale_;
   for (int i = 0; i < num_scales_; i++) {
     Patch integral(0, frame.width()*current_scale, frame.height()*current_scale, 1);
     Patch activations(0, frame.width()*current_scale, frame.height()*current_scale, 1);
@@ -449,10 +449,10 @@ void Detector::ComputeMergedActivation(const Patch& frame, Patch* merged) {
     // Resize image using nearest neighbor
     shifted.ExtractLabel(l, &inflated, true);
 
-    stringstream ss;
-    ss << "tmp/shifted." << i << ".pgm";
-    string filename = ss.str();
-    OutputActivation(shifted, filename);
+    // stringstream ss;
+    // ss << "tmp/shifted." << i << ".pgm";
+    // string filename = ss.str();
+    // OutputActivation(shifted, filename);
 
     for (int h = 0; h < frame.height(); h++) {
       for (int w = 0; w < frame.width(); w++) {
@@ -517,7 +517,7 @@ void Detector::ComputeDetections(const Patch& frame, vector<Label>* detections) 
   vector<Label> all_detections;
   vector<float> all_weights;
 
-  float current_scale = 1.0;
+  float current_scale = initial_scale_;
   for (int i = 0; i < (int)(activations.size()); i++) {
     for (int h = 0; h < activations[i].height(); h++) {
       for (int w = 0; w < activations[i].width(); w++) {
