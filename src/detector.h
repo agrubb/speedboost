@@ -87,6 +87,10 @@ public:
    */
   float FeaturesPerPixel() { return (float)updated_pixels_ / (float)num_pixels_; }
 
+  float UpdatedPixels() { return (float)updated_pixels_; }
+
+  float NumPixels() { return (float)num_pixels_; }
+
 private:
   Classifier* c_;
   Patch* integral_;

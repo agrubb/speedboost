@@ -391,8 +391,15 @@ void Detector::ComputeActivationPyramid(const Patch& frame, int num_scales, floa
     frame_index++;
   }
 
+  float total_num_pixels = 0;
+  float total_updated_pixels = 0;
+  for (int i = 0; i < (int)(scaled_detectors.size()); i++) {
+    total_num_pixels += scaled_detectors[i].NumPixels();
+    total_updated_pixels += scaled_detectors[i].UpdatedPixels();
+  }
   cout << "Time elapsed: " << Toc() << endl;
-  cout << "Total features computed: " << features_computed << " in " << frame_index << " frames." << endl;
+  cout << "Total features computed: " << features_computed << " in " << frame_index << " stages." << endl;
+  cout << "Total patches evaluated: " << total_num_pixels << ", total feature computations: " << total_updated_pixels << endl;
 }
 
 void OutputActivation(const Patch& activations, string filename) {
