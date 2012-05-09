@@ -45,7 +45,7 @@ DEFINE_double(initial_scale, 1.0,
               "The initial scale to start detection objects at.  "
               "If not changed from the default, the scale will be calculated adaptively "
               "using smallest_detection_ratio.");
-DEFINE_double(smallest_detection_ratio, 0.1,
+DEFINE_double(smallest_detection_ratio, 0.01,
               "If initial_scale not changed from default, this ratio will be used to calculate "
               "an initial_scale that corresponds to the smallest detection having this fraction "
               "of the entire image area.");
