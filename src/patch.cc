@@ -263,7 +263,7 @@ void Patch::GenerateAllPatches(int width, int height, int step,
     for (int w = 0; w < this->width() - width; w += step) {
       Label l(w, h, width, height);
 
-      Patch p(0, FLAGS_patch_width, FLAGS_patch_height, 1);
+      Patch p(0, FLAGS_patch_width, FLAGS_patch_height, this->channels());
       ExtractLabel(l, &p);
       p.ComputeIntegralImage();
 

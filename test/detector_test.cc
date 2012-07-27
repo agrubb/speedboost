@@ -21,6 +21,8 @@ const string kBoostClassifier = "/face.boost.classifier";
 const string kCascadeClassifier = "/face.cascade.classifier";
 const string kAnytimeClassifier = "/face.anytime.classifier";
 
+const string kBoostMultiClassifier = "/face.boost.multi.classifier";
+
 const string kFrame = "/seinfeld.png";
 
 TEST(SequencerTest, SequencerTest) {
@@ -111,7 +113,7 @@ TEST(DetectorTest, ComputeActivationPyramidMultiScale) {
   Patch frame(0, img.columns(), img.rows(), 1);
   ImageToPatch(img, &frame);
 
-  Detector detect(&c, 1.0, 3, 1.3, 0.0);
+  Detector detect(&c, 1.0, 5, 1.3, 0.0);
   vector<Patch> activation_pyramid;
 
   detect.ComputeActivationPyramid(frame, &activation_pyramid);
@@ -139,6 +141,50 @@ TEST(DetectorTest, ComputeActivationPyramidMultiScale) {
   }
 }
 
+TEST(DetectorTest, ComputeActivationPyramidMultiScaleMultiChannel) {
+  // Test data was trained using these values.
+  FLAGS_patch_width = 19;
+  FLAGS_patch_height = 19;
+  FLAGS_patch_depth = 3;
+
+  // Load the test frame and classifier.
+  Magick::Image img(FLAGS_test_data_directory + kFrame);
+  img.type(Magick::TrueColorType);
+  
+  Classifier c;
+  c.ReadFromFile(FLAGS_test_data_directory + kBoostMultiClassifier);
+  
+  Patch frame(0, img.columns(), img.rows(), 3);
+  ImageToPatch(img, &frame);
+
+  Detector detect(&c, 1.0, 5, 1.3, 0.0);
+  vector<Patch> activation_pyramid;
+
+  detect.ComputeActivationPyramid(frame, &activation_pyramid);
+  
+  // Output images for manual inspection.
+  for (int i = 0; i < (int)(activation_pyramid.size()); i++) {
+    stringstream ss;
+    ss << FLAGS_test_output_directory << "/detector_test_multi.activation." << i << ".pgm";
+    string filename = ss.str();
+    OutputActivation(activation_pyramid[i], filename);
+  }
+
+  float current_scale = 1.0;
+  for (int i = 0; i < (int)(activation_pyramid.size()); i++) {
+    Patch rescaled(0, frame.width()*current_scale, frame.height()*current_scale, 3);
+    Label l(0, 0, frame.width(), frame.height());
+
+    frame.ExtractLabel(l, &rescaled);
+
+    ASSERT_EQ(activation_pyramid[i].width(), rescaled.width());
+    ASSERT_EQ(activation_pyramid[i].height(), rescaled.height());
+
+    VerifyActivations(activation_pyramid[i], rescaled, c, 0.02);
+    current_scale = current_scale / 1.3;
+  }
+}
+
 TEST(DetectorTest, ComputeActivationPyramidSingleScale) {
   // Test data was trained using these values.
   FLAGS_patch_width = 19;
@@ -153,6 +199,31 @@ TEST(DetectorTest, ComputeActivationPyramidSingleScale) {
   c.ReadFromFile(FLAGS_test_data_directory + kBoostClassifier);
   
   Patch frame(0, img.columns(), img.rows(), 1);
+  ImageToPatch(img, &frame);
+
+  Detector detect(&c, 1.0, 1, 1.0, 0.0);
+  vector<Patch> activation_pyramid;
+  detect.ComputeActivationPyramid(frame, &activation_pyramid);
+
+  ASSERT_EQ(activation_pyramid.size(), 1);
+  VerifyActivations(activation_pyramid[0], frame, c, 0.02);
+}
+
+
+TEST(DetectorTest, ComputeActivationPyramidSingleScaleMultiChannel) {
+  // Test data was trained using these values.
+  FLAGS_patch_width = 19;
+  FLAGS_patch_height = 19;
+  FLAGS_patch_depth = 3;
+
+  // Load the test frame and classifier.
+  Magick::Image img(FLAGS_test_data_directory + kFrame);
+  img.type(Magick::TrueColorType);
+  
+  Classifier c;
+  c.ReadFromFile(FLAGS_test_data_directory + kBoostMultiClassifier);
+  
+  Patch frame(0, img.columns(), img.rows(), 3);
   ImageToPatch(img, &frame);
 
   Detector detect(&c, 1.0, 1, 1.0, 0.0);

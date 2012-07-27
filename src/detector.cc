@@ -337,7 +337,7 @@ void Detector::SetupForFrame(const Patch& frame,
 
   float current_scale = 1.0 / initial_scale_;
   for (int i = 0; i < num_scales_; i++) {
-    Patch integral(0, frame.width()*current_scale, frame.height()*current_scale, 1);
+    Patch integral(0, frame.width()*current_scale, frame.height()*current_scale, frame.channels());
     Patch activations(0, frame.width()*current_scale, frame.height()*current_scale, 1);
     Label l(0, 0, frame.width(), frame.height());
 
