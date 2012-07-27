@@ -126,16 +126,6 @@ bool Classifier::FromMessage(const ClassifierMessage& msg) {
     filters_are_permanent_ = false;
   }
 
-  chains_.resize(msg.chains_size());
-  filters_.resize(msg.chains_size());
-  for (int i = 0; i < msg.chains_size(); i++) {
-    if (!chains_[i].FromMessage(msg.chains(i).chain()))
-      return false;
-
-    if (!filters_[i].FromMessage(msg.chains(i).filter()))
-      return false;
-  }
-
   if (msg.has_patch_width()) {
     if (msg.patch_width() != FLAGS_patch_width) {
       if (google::GetCommandLineFlagInfoOrDie("patch_width").is_default) {
@@ -173,6 +163,16 @@ bool Classifier::FromMessage(const ClassifierMessage& msg) {
         return false;
       }
     }
+  }
+
+  chains_.resize(msg.chains_size());
+  filters_.resize(msg.chains_size());
+  for (int i = 0; i < msg.chains_size(); i++) {
+    if (!chains_[i].FromMessage(msg.chains(i).chain()))
+      return false;
+
+    if (!filters_[i].FromMessage(msg.chains(i).filter()))
+      return false;
   }
 
   return true;
