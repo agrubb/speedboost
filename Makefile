@@ -1,10 +1,15 @@
 .PHONY: all test clean distclean
 .DEFAULT_GOAL  = all
 
+ROOT       := $(shell pwd)
+THIRDPARTY := $(ROOT)/thirdparty
+
+include thirdparty/Makefile
+
 CXX      = g++
 OPTS     = -O3 -g -fPIC -fopenmp
-CXXFLAGS = -Wall $(OPTS) -I/usr/local/include/ -I/usr/include/ImageMagick/ `pkg-config --cflags protobuf`
-LDFLAGS  = -fopenmp -Llib/ -L$(THIRDPARTY_LIB)
+CXXFLAGS = -Wall $(OPTS) -I$(THIRDPARTY_INCLUDE) -I/usr/local/include/ -I/usr/include/ImageMagick/ `pkg-config --cflags protobuf`
+LDFLAGS  = -fopenmp -Llib/ -L$(THIRDPARTY_LIB)/
 LDLIBS   = -lspeedboost -lgflags -lMagick++ `pkg-config --libs protobuf`
 
 LIBRARY = lib/libspeedboost.a
@@ -16,11 +21,6 @@ test
 DISABLED_MODULES = 
 
 ENABLED_MODULES  = 
-
-ROOT       := $(shell pwd)
-THIRDPARTY := $(ROOT)/thirdparty
-
-include thirdparty/Makefile
 
 MODULES        = $(filter-out $(DISABLED_MODULES),$(ALL_MODULES))
 ifneq ($(ENABLED_MODULES),)
@@ -55,7 +55,7 @@ clean:
 
 distclean: clean thirdparty-clean
 
-bin/check: LDLIBS += -lgtest
+bin/check: LDLIBS += $(THIRDPARTY_LIB)/.libs/libgtest.a
 bin/check: $(TEST_OBJ) $(LIBRARY)
 
 test: thirdparty-all bin/check

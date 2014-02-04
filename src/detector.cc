@@ -399,7 +399,7 @@ void Detector::ComputeActivationPyramid(const Patch& frame,
     total_updated_pixels += scaled_detectors[i].UpdatedPixels();
   }
   cout << "Time elapsed: " << Toc() << endl;
-  cout << "Total features computed: " << features_computed << " in " << frame_index << " stages." << endl;
+  cout << "Average features computed: " << features_computed << " in " << frame_index << " stages." << endl;
   cout << "Total patches evaluated: " << total_num_pixels << ", total feature computations: " << total_updated_pixels << endl;
 
 }
